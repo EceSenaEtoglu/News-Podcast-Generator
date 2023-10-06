@@ -13,6 +13,8 @@ class Api():
     def _get_parsed_response(res_data: str):
         """return list of articles from parsing json data"""
 
+        print(res_data)
+
         parsed_data = json.loads(res_data)
         articles_data = parsed_data.get("articles", [])
 
