@@ -1,33 +1,32 @@
 from article import Article
 from gtts import gTTS
 from translate import Translator
-class Audio():
 
 
-    def __init__(self,articles:list,lang):
+class Audio:
+    def __init__(self, articles: list, lang):
         self._articles = articles
         self._lang = lang
 
         self.string_article_skip = 'Details are at'
-        self.string_new_article = "Now we are heading to the next article.."
+        self.string_new_article = "...Now we are heading to the next article.."
 
         # if lang is not english, need to translate these
         if lang != "en":
-
             # TODO use google translate
-            self._translator = Translator(to_lang = lang)
+            self._translator = Translator(to_lang=lang)
             self.string_article_skip = self._translator.translate(self.string_article_skip)
             self.string_new_article = self._translator.translate(self.string_new_article)
 
+    def _article_to_text(self, article: Article) -> str:
 
+        """get text of article to audit"""
 
-    def _article_to_text(self,article:Article) -> str:
-
-        # TODO eliminate author
+        # TODO eliminate author from title (in form - X)
         text = article._title
         text += "..."
 
-        if article._description != None:
+        if article._description is not None:
             text += article._description
 
         # TODO scrape from URL
@@ -35,19 +34,35 @@ class Audio():
             pass
 
         # hard coded API response
-        # if article.source.name is not Google News, the source is article.source.name (see https://newsapi.org/s/us-news-api)
-        if article._source != None and article._source["name"] != "Google News":
+        # if article.source.name is not Google News,
+        # the source is article.source.name (see https://newsapi.org/s/us-news-api)
+
+        if article._source is not None and article._source["name"] != "Google News":
             source = article._source["name"]
 
         # else author is the source
         else:
             source = article._author
 
-
-        text += self.string_article_skip + source + self.string_new_article
+        text += self.string_article_skip + source
         return text
 
-    def audit_article(self,article_text:str):
+    def create_audio(self):
+        """convert given articles to audio"""
 
-        tts = gTTS(self._article_to_text(article_text,self._lang))
+        tts = gTTS("Sorry, no news or articles were found", self._lang)
+        text_articles = ""
+
+        for id, article in enumerate(self._articles):
+            text_article = self._article_to_text(article)
+            text_articles += text_article
+
+            # if upcoming article exists, add string_new_article text
+            if id != len(self._articles) - 1:
+                text_articles += self.string_new_article
+
+        # if article(s) found
+        if len(text_articles) != 0:
+            tts.text = text_articles
+
         tts.save("audio.mp3")
