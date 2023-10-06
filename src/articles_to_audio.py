@@ -8,8 +8,8 @@ class Audio:
         self._articles = articles
         self._lang = lang
 
-        self.string_article_skip = 'Details are at'
-        self.string_new_article = "...Now we are heading to the next article.."
+        self.string_article_skip = '\nDetails are at '
+        self.string_new_article = "\nNow we are heading to the next article......\n"
 
         # if lang is not english, need to translate these
         if lang != "en":
@@ -24,7 +24,7 @@ class Audio:
 
         # TODO eliminate author from title (in form - X)
         text = article._title
-        text += "..."
+        text += ".\n"
 
         if article._description is not None:
             text += article._description
@@ -50,19 +50,20 @@ class Audio:
     def create_audio(self):
         """convert given articles to audio"""
 
-        tts = gTTS("Sorry, no news or articles were found", self._lang)
-        text_articles = ""
+        tts = gTTS(text="Sorry, no news or articles were found", lang=self._lang,tld="com")
+        # for debuggin
+        self.DB_text_articles = ""
 
         for id, article in enumerate(self._articles):
             text_article = self._article_to_text(article)
-            text_articles += text_article
+            self.DB_text_articles+= text_article
 
             # if upcoming article exists, add string_new_article text
             if id != len(self._articles) - 1:
-                text_articles += self.string_new_article
+                self.DB_text_articles += self.string_new_article
 
         # if article(s) found
-        if len(text_articles) != 0:
-            tts.text = text_articles
+        if len(self.DB_text_articles) != 0:
+            tts.text = self.DB_text_articles
 
         tts.save("audio.mp3")
