@@ -2,36 +2,64 @@ from article import Article
 from gtts import gTTS
 from translate import Translator
 
-
 class Audio:
-    def __init__(self, articles: list, lang):
+
+    gtts_pause = "\n\n\n\n ."
+    def __init__(self, articles: list, lang,str_intro):
+
         self._articles = articles
         self._lang = lang
 
-        self.string_article_skip = '\nDetails are at '
-        self.string_new_article = "\nNow we are heading to the next article......\n"
+        self.str_article_skip = 'Details are at '
+        self.str_new_article = "Now we are heading to the next news"
+        self.str_not_found = "Sorry, no news or articles were found"
+        self.str_intro = str_intro
 
         # if lang is not english, need to translate these
         if lang != "en":
             # TODO use google translate
             self._translator = Translator(to_lang=lang)
-            self.string_article_skip = self._translator.translate(self.string_article_skip)
-            self.string_new_article = self._translator.translate(self.string_new_article)
+            self.str_article_skip = self._translator.translate(self.str_article_skip)
+            self.str_new_article = self._translator.translate(self.str_new_article)
+            self.str_not_found = self._translator.translate(self.str_not_found)
+            self.str_intro = self._translator.translate(self.str_intro)
 
     def _article_to_text(self, article: Article) -> str:
 
-        """get text of article to audit"""
+        """return text of article to audit, return empty text if both description and content is none"""
 
-        # TODO eliminate author from title (in form - X)
-        text = article._title
-        text += ".\n"
+        text = ""
+
+        # get title
+        for i in range(-1,-1*len(article._title)-1,-1):
+
+            # hard coded API response
+            # eliminate author from title blabla - X
+            # PROBLEM: blabla -X -Y cannot be eliminated
+            char = article._title[i]
+
+            if char == '-':
+                title = article._title[-1*len(article._title):i]
+                break
+
+        # add title to text
+
+        text += title + f"{Audio.gtts_pause}"
+
 
         if article._description is not None:
             text += article._description
 
-        # TODO scrape from URL
+        elif article._content is not None:
+            text += article._content
+
+        # response given by the API is problematic
+        # nor content nor description is provided
+        # for now just get the title
+        # TODO scrape from url
         else:
             pass
+
 
         # hard coded API response
         # if article.source.name is not Google News,
@@ -44,26 +72,30 @@ class Audio:
         else:
             source = article._author
 
-        text += self.string_article_skip + source
+        text += "\n" + self.str_article_skip + source + f"{Audio.gtts_pause}" * 2
         return text
 
     def create_audio(self):
         """convert given articles to audio"""
 
-        tts = gTTS(text="Sorry, no news or articles were found", lang=self._lang,tld="com")
-        # for debuggin
-        self.DB_text_articles = ""
+        tts = gTTS(text=self.str_not_found, lang=self._lang, tld="com")
+
+        # if no article is found
+        if len(self._articles) == 0:
+            tts.save("audio.mp3")
+            return
+
+        text_articles = self.str_intro
 
         for id, article in enumerate(self._articles):
             text_article = self._article_to_text(article)
-            self.DB_text_articles+= text_article
 
-            # if upcoming article exists, add string_new_article text
-            if id != len(self._articles) - 1:
-                self.DB_text_articles += self.string_new_article
+            if len(text_article) != 0:
+                text_articles += Audio.gtts_pause + text_article
 
-        # if article(s) found
-        if len(self.DB_text_articles) != 0:
-            tts.text = self.DB_text_articles
+                # if upcoming article exists, add string_new_article text
+                if id != len(self._articles) - 1:
+                    text_articles += self.str_new_article + Audio.gtts_pause
 
+        tts.text = text_articles
         tts.save("audio.mp3")
