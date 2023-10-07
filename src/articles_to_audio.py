@@ -29,6 +29,7 @@ class Audio:
         """return text of article to audit, return empty text if both description and content is none"""
 
         text = ""
+        title = article._title
 
         # get title
         for i in range(-1,-1*len(article._title)-1,-1):
