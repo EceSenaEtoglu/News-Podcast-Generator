@@ -2,12 +2,25 @@ from multipledispatch import dispatch
 from article import Article
 import requests
 import json
+import iso3166
+
+class InvalidInputError(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(self.message)
 
 
-class Api():
+class Api:
+
+    CATEGORIES = ["business","entertainment","general","health","science","sports","technology"]
 
     def __init__(self, api_key: str):
         self._api_key = api_key
+
+    @staticmethod
+    def is_a_valid_country(country):
+        """return if a country is valid for the API (in iso 3166 format)"""
+        return country in iso3166.countries
 
     @staticmethod
     def _get_parsed_response(res_data: str):
@@ -30,7 +43,13 @@ class Api():
     @dispatch(str, str)
     def get_top_headlines(self, country: str, category: str) -> list:
         "return top headlines for a category in country from country's news sources." \
-        " Increasing order of publish time. E.g most recent headline is at the end"""
+        " Increasing order of publish time. E.g most recent headline is at the end""" \
+        """raise InvalidInputError if inputs are invalid."""
+
+        # if country or category data is invalid
+        # raise InvalidInputError
+        if not (country in iso3166 and category in Api.CATEGORIES):
+            raise InvalidInputError("Category or country data is invalid.")
 
         url = f"https://newsapi.org/v2/top-headlines?country={country}&category={category}&apiKey={self._api_key}"
         res = requests.get(url)
@@ -44,6 +63,11 @@ class Api():
     def get_top_headlines(self, country: str) -> list:
         """return top headlines for a country from country's news sources
         Increasing order of publish time. E.g most recent headline is at the end"""""
+
+        # if country or category data is invalid
+        # raise InvalidInputError
+        if country not in iso3166.countries:
+            raise InvalidInputError("Country data is invalid.")
 
         url = f"https://newsapi.org/v2/top-headlines?country={country}&apiKey={self._api_key}"
         res = requests.get(url)
