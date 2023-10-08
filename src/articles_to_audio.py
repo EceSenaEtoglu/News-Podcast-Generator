@@ -5,7 +5,7 @@ from translate import Translator
 class Audio:
 
     gtts_pause = "\n\n\n\n ."
-    def __init__(self, articles: list, lang,str_intro):
+    def __init__(self, articles: list, lang,str_intro,output_name):
 
         self._articles = articles
         self._lang = lang
@@ -14,6 +14,8 @@ class Audio:
         self.str_new_article = "Now we are heading to the next news"
         self.str_not_found = "Sorry, no news or articles were found"
         self.str_intro = str_intro
+
+        self._outputname = output_name
 
         # if lang is not english, need to translate these
         if lang != "en":
@@ -99,4 +101,7 @@ class Audio:
                     text_articles += self.str_new_article + Audio.gtts_pause
 
         tts.text = text_articles
-        tts.save("audio.mp3")
+        tts.save(self._outputname)
+
+
+
