@@ -4,6 +4,11 @@ from gtts import gTTS
 from translate import Translator
 import os
 
+class InitializationException(Exception):
+    def __init__(self):
+        self.message = "Something went wrong while initalizing audio. Contact to the admin"
+        super().__init__(self.message)
+
 class Audio:
 
     gtts_pause = "\n\n\n\n ."
@@ -43,9 +48,8 @@ class Audio:
                 return cls(articles,language_code,intro,output_file_name)
 
         else:
-            return None
+            raise
 
-        return None
 
     def _article_to_text(self, article: Article) -> str:
 
