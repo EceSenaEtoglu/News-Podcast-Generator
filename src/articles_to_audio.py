@@ -1,6 +1,7 @@
 from article import Article
 from gtts import gTTS
 from translate import Translator
+import os
 
 class Audio:
 
@@ -79,7 +80,7 @@ class Audio:
         return text
 
     def create_audio(self):
-        """convert given articles to audio"""
+        """convert given articles to audio. Call get_audio_path after this to get path"""
 
         tts = gTTS(text=self.str_not_found, lang=self._lang, tld="com")
 
@@ -102,3 +103,7 @@ class Audio:
 
         tts.text = text_articles
         tts.save(self._outputname)
+
+    def get_audio_path(self) -> str:
+        """return path of created audio. Call after creating audio"""
+        return os.getcwd()+self._outputname
