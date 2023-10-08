@@ -1,3 +1,4 @@
+import pycountry as pycountry
 from article import Article
 from gtts import gTTS
 from translate import Translator
@@ -26,6 +27,25 @@ class Audio:
             self.str_new_article = self._translator.translate(self.str_new_article)
             self.str_not_found = self._translator.translate(self.str_not_found)
             self.str_intro = self._translator.translate(self.str_intro)
+
+    @classmethod
+    def from_country_code(cls,articles:list,country_code:str,intro:str,output_file_name:str):
+        """create Audio object from ISO 3661 country_code instead of ISO 639-1 lang_code
+        return none if country_code is not valid"""
+
+        # Get the country object based on the ISO 3166 code
+        country = pycountry.countries.get(alpha_2=country_code)
+
+        if country:
+            # Get the ISO 639-1 language code for the primary language spoken in the country
+            language_code = country.languages[0].alpha_2 if country.languages else None
+            if language_code:
+                return cls(articles,language_code,intro,output_file_name)
+
+        else:
+            return None
+
+        return None
 
     def _article_to_text(self, article: Article) -> str:
 
