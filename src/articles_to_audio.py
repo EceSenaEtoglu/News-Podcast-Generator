@@ -102,6 +102,3 @@ class Audio:
 
         tts.text = text_articles
         tts.save(self._outputname)
-
-
-
