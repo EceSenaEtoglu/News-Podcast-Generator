@@ -15,8 +15,8 @@ START_MESSAGE = "I can get you the top headlines and breaking news for a country
                 "   - science\n" \
                 "   - sports\n" \
                 "   - technology\n\n" \
-                "For option 1, type /getnews_country'get \n."\
-                "For option 2, type /getnews_countrycategory \n."
+                "For option 1, type /getnews-1\n."\
+                "For option 2, type /getnews-2\n."
 
 INVALID_RESPONSE_ERROR = "I'm not sure I understand your response. Let me show you what I can do"
 
@@ -24,44 +24,41 @@ INVALID_RESPONSE_ERROR = "I'm not sure I understand your response. Let me show y
 api = Api(NEWS_API_KEY)
 
 # Commands
-async def _start_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
-
+async def start_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(START_MESSAGE)
 
-async def _getnews_country_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
+
+async def getnews1_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
     info_message = "To get top headlines and breaking news in an audited format:\n" \
                    "type this without '< >': <insert your country code according to ISO 3166-1>'"
 
     await update.message.reply_text(info_message)
 
 
-async def _getnews_country_category_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
+async def getnews2_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
     info_message = "Here are possible categories:\n" \
-                "   - business\n" \
-                "   - entertainment\n" \
-                "   - general\n" \
-                "   - health\n" \
-                "   - science\n" \
-                "   - sports\n" \
-                "   - technology\n\n" \
-        "To get top headlines and breaking news in an audited format:\n" \
-        "type this without '< >': <insert your country code according to ISO 3166-1>'<insert space> <insert one of the categories above>"
+                    "   - business\n" \
+                    "   - entertainment\n" \
+                    "   - general\n" \
+                    "   - health\n" \
+                    "   - science\n" \
+                    "   - sports\n" \
+                    "   - technology\n\n" \
+            "To get top headlines and breaking news in an audited format:\n" \
+            "type this without '< >': <insert your country code according to ISO 3166-1>'<insert space> <insert one of the categories above>"
 
     await update.message.reply_text(info_message)
 
-async def _help_command(update:Update, context:ContextTypes.DEFAULT_TYPE):
-    start_message = "command that you get after \help"
-    await update.message.reply_text(start_message)
 
 # Logic
-
-def _process_response(user_response:str, user_id) -> str:
-    """Handles user response, creates audio if applicable and returns the abs path.
-    If not applicable returns invalid response message"""
+def process_user_response(user_response:str, user_id,context:ContextTypes.DEFAULT_TYPE) -> str:
+    """Creates audio if applicable and returns the abs path.
+    If not applicable returns error message"""
 
     response_data = user_response.split(" ")
-    bot_response = INVALID_RESPONSE_ERROR
+    bot_response = ""
     output_file_name = f"{user_id}.mp3"
+
 
     # user possibly asked for news in a country
     if len(response_data) == 1:
@@ -73,19 +70,16 @@ def _process_response(user_response:str, user_id) -> str:
 
         # if country code is invalid
         except InvalidInputError:
-            pass
+            bot_response = INVALID_RESPONSE_ERROR
 
         else:
             # intro to start the audio with
             intro = f"Latest news in {api.COUNTRIES.get(country_code)}"
-            audio = Audio.from_country_code(articles,country_code,intro,output_file_name)
 
             # create audio
-            if audio:
-                audio.create_audio()
-                bot_response = audio.get_audio_path()
-
-            else:
+            audio = Audio.from_country_code(articles, country_code, intro, output_file_name)
+            audio.create_audio()
+            bot_response = audio.get_audio_path()
 
 
     # user possibly asked for news in a country in a specific category
@@ -99,22 +93,28 @@ def _process_response(user_response:str, user_id) -> str:
 
         # if country code or category is invalid
         except InvalidInputError:
-            pass
+            bot_response = INVALID_RESPONSE_ERROR
 
         else:
 
             # intro to start the audio with
             intro = f"Latest news in {api.COUNTRIES.get(country_code)} about {category}"
-            audio = Audio.from_country_code(articles, country_code, intro, output_file_name)
-            # create audio
-            if audio:
-                audio.create_audio()
-                bot_response = audio.get_audio_path()
+            try:
+                audio = Audio.from_country_code(articles, country_code, intro, output_file_name)
+
+            except InitializationException:
+                pass
+
             else:
+                # create audio
+                audio.create_audio()
+                context.user_data["audio_generated"] = True
+                bot_response = audio.get_audio_path()
+
 
     return bot_response
 
-async def _send_audio(update:Update, context:ContextTypes.DEFAULT_TYPE):
+async def handle_message(update:Update, context:ContextTypes.DEFAULT_TYPE):
     """"Sends audio to chat if audio was created else sends START_MESSAGE"""
 
     # identify if group or private
@@ -128,25 +128,26 @@ async def _send_audio(update:Update, context:ContextTypes.DEFAULT_TYPE):
     if message_type == "group":
 
         if BOT_USERNAME in user_response:
-            parsed_response = user_response.replace(BOT_USERNAME,"")
-            system_response = _process_response(parsed_response, user_id)
+            user_response = user_response.replace(BOT_USERNAME,"")
+            bot_response = process_user_response(user_response, user_id)
 
         else:
             return
     else:
-        system_response = _process_response(user_response, user_id)
+        bot_response = process_user_response(user_response, user_id)
 
     # if provided response is not valid
     # show start message
-    if system_response == INVALID_RESPONSE_ERROR:
+    if bot_response == INVALID_RESPONSE_ERROR:
         await update.message.reply_text(INVALID_RESPONSE_ERROR)
         await update.message.reply_text(START_MESSAGE)
 
-    elif system_response ==
+    elif not context.user_data["audio_generated"]:
+
 
     else:
         # send audio
-        await update.message.reply_audio(system_response)
+        await update.message.reply_audio(bot_response)
 
 
 # Debugger function for the developer
@@ -160,10 +161,10 @@ if __name__ == "__main__":
 
 
     # Handling Commands
-    app.add_handler(CommandHandler('start',_start_command))
+    app.add_handler(CommandHandler('start',start_command))
 
     # Handling Messages
-    app.add_handler(MessageHandler(filters.TEXT,handle_message))
+    app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     # Errors
     app.add_error_handler(log_error)
@@ -171,6 +172,6 @@ if __name__ == "__main__":
     # Polls the bot
     print("Polling")
     # Check for updates every poll_interval
-    app.run_polling(poll_interval=POLL_INTERVAL)from config import*
+    app.run_polling(poll_interval= POLL_INTERVAL_SECONDS)
 
 
