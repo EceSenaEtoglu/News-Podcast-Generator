@@ -4,15 +4,17 @@ from gtts import gTTS
 from translate import Translator
 import os
 
-class InitializationException(Exception):
+
+class InvalidInputError(Exception):
     def __init__(self):
-        self.message = "Something went wrong while initalizing audio. Contact to the admin"
-        super().__init__(self.message)
+        self.message =
 
 class Audio:
 
     gtts_pause = "\n\n\n\n ."
     def __init__(self, articles: list, lang,str_intro,output_name):
+
+        """create audio object from ISO 361-1 lang code"""
 
         self._articles = articles
         self._lang = lang
@@ -20,6 +22,7 @@ class Audio:
         self.str_article_skip = 'Details are at '
         self.str_new_article = "Now we are heading to the next news"
         self.str_not_found = "Sorry, no news or articles were found"
+
         self.str_intro = str_intro
 
         self._outputname = output_name
@@ -35,21 +38,15 @@ class Audio:
 
     @classmethod
     def from_country_code(cls,articles:list,country_code:str,intro:str,output_file_name:str):
-        """create Audio object from ISO 3661 country_code instead of ISO 639-1 lang_code
-        return none if country_code is not valid"""
+        """create Audio object from ISO 3661 country_code"""
 
         # Get the country object based on the ISO 3166 code
         country = pycountry.countries.get(alpha_2=country_code)
 
-        if country:
-            # Get the ISO 639-1 language code for the primary language spoken in the country
-            language_code = country.languages[0].alpha_2 if country.languages else None
-            if language_code:
-                return cls(articles,language_code,intro,output_file_name)
-
-        else:
-            raise
-
+        # Get the ISO 639-1 language code for the primary language spoken in the country
+        language_code = country.languages[0].alpha_2 if country.languages else None
+        if language_code:
+            return cls(articles, language_code, intro, output_file_name)
 
     def _article_to_text(self, article: Article) -> str:
 
@@ -131,3 +128,7 @@ class Audio:
     def get_audio_path(self) -> str:
         """return path of created audio. Call after creating audio"""
         return os.getcwd()+self._outputname
+
+
+if __name__ == "__main__":
+
