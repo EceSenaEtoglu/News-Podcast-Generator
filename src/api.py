@@ -13,6 +13,7 @@ class InvalidInputError(Exception):
 class Api:
 
     CATEGORIES = ["business","entertainment","general","health","science","sports","technology"]
+    COUNTRIES = iso3166.countries
 
     def __init__(self, api_key: str):
         self._api_key = api_key
@@ -42,9 +43,11 @@ class Api:
 
     @dispatch(str, str)
     def get_top_headlines(self, country: str, category: str) -> list:
-        "return top headlines for a category in country from country's news sources." \
-        " Increasing order of publish time. E.g most recent headline is at the end""" \
-        """raise InvalidInputError if inputs are invalid."""
+        """Return top headlines in a category(api.CATEGORIES) for a country, from country's news sources
+
+        Increasing order of publish time. E.g most recent headline is at the end
+
+        Raise InvalidInputError if inputs are invalid."""
 
         # if country or category data is invalid
         # raise InvalidInputError
@@ -61,8 +64,9 @@ class Api:
 
     @dispatch(str)
     def get_top_headlines(self, country: str) -> list:
-        """return top headlines for a country from country's news sources
-        Increasing order of publish time. E.g most recent headline is at the end"""""
+        """Return top headlines for a country from country's news sources
+        Increasing order of publish time. E.g most recent headline is at the end
+        Raise InvalidInputError if inputs are invalid."""
 
         # if country or category data is invalid
         # raise InvalidInputError
