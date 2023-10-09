@@ -1,9 +1,10 @@
 from src.api import *
 from src.config import*
-from src.articles_to_audio import Audio
+from src.audio import Audio
 
 
 if __name__ == '__main__':
+
 
     news_api = Api(NEWS_API_KEY)
     intro_str = f"Latest news in US"
