@@ -1,5 +1,4 @@
 import iso3166
-from babel import Locale
 
 countries = {"tr":"tr","us":"en","de":"de"}
 
