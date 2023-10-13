@@ -6,7 +6,8 @@ def ISO_1366_countries():
     """return ISO_1366 countries """
     return iso3166.countries
 
-
+def get_country_name(country_code:str):
+    return iso3166.countries[country_code].name
 def is_ISO_3166_country_code(country_code:str):
     return country_code in iso3166.countries
 
