@@ -4,9 +4,8 @@ from config import *
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
-START_MESSAGE = "I can get you the top headlines and breaking news for a country in an audited format. In the " \
-                "specified country's language.\n" \
-                "Here is what I can do:\n" \
+START_MESSAGE = "I can get you the top headlines and breaking news for a country (in the country's official language) in an audited format.\n" \
+                "\nHere is what I can do:\n\n" \
                 "1- Get news for a country from the country's sources.\n" \
                 "2- Get news for a country from the country's sources about a specific category. Here are possible " \
                 "categories:\n" \
@@ -17,8 +16,8 @@ START_MESSAGE = "I can get you the top headlines and breaking news for a country
                 "   - science\n" \
                 "   - sports\n" \
                 "   - technology\n\n" \
-                "For option 1, type /getnews-1\n." \
-                "For option 2, type /getnews-2\n."
+                "For option 1, type /getnews\n" \
+                "For option 2, type /getnews_category\n"
 
 INVALID_RESPONSE_ERROR = "I'm not sure I understand your response. Let me show you what I can do"
 
@@ -26,20 +25,20 @@ api = Api(NEWS_API_KEY)
 
 
 # Commands
-async def start_command(update: Update):
+async def start_command(update: Update,context):
     """handle the /start command"""
     await update.message.reply_text(START_MESSAGE)
 
 
-async def news1_command(update: Update):
+async def getnews(update: Update,context):
     """handle the /getnews-1 command"""
     info_message = "To get top headlines and breaking news in an audited format:\n" \
-                   "type this without '< >': <insert your country code according to ISO 3166-1>'"
+                   "type this without '< >':\n <insert your country code according to ISO 3166-1>'"
 
     await update.message.reply_text(info_message)
 
 
-async def news2_command(update: Update):
+async def getnews_category(update: Update,context):
     """handle the /getnews-2 command"""
 
     info_message = "Here are possible categories:\n" \
@@ -51,7 +50,7 @@ async def news2_command(update: Update):
                    "   - sports\n" \
                    "   - technology\n\n" \
                    "To get top headlines and breaking news in an audited format:\n" \
-                   "type this without '< >': <insert your country code according to ISO 3166-1>'<insert space> " \
+                   "type this without '< >':\n <insert your country code according to ISO 3166-1>'<insert space> " \
                    "<insert one of the categories above>"
 
     await update.message.reply_text(info_message)
@@ -81,7 +80,7 @@ def process_user_message(user_message: str, user_id, context: ContextTypes.DEFAU
             articles = api.get_top_headlines(country_code)
 
             # intro to start the audio with
-            intro = f"Latest news in {api.COUNTRIES.get(country_code)}"
+            intro = f"Latest news in {api.COUNTRIES.get(country_code).name}"
 
             # create audio
             audio = Audio.from_country_code(articles, country_code, intro, output_file_name)
@@ -162,6 +161,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # if response is valid and audio is generated
     # send audio to chat
     elif context.user_data["generated_audio"]:
+        print("sending the audio")
         await update.message.reply_audio(bot_response)
         context.user_data["generated_audio"] = False
         
@@ -180,8 +180,8 @@ if __name__ == "__main__":
 
     # Handling Commands
     app.add_handler(CommandHandler('start', start_command))
-    app.add_handler(CommandHandler("getnews-1", news1_command))
-    app.add_handler(CommandHandler("getnews-2", news2_command))
+    app.add_handler(CommandHandler("getnews", getnews))
+    app.add_handler(CommandHandler("getnews_category", getnews_category))
 
     # Handling Messages
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
