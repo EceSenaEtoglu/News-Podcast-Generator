@@ -1,11 +1,14 @@
 from article import Article
 from gtts import gTTS
 from translate import Translator
+import helpers
 
 class Audio:
 
     gtts_pause = "\n\n\n\n ."
-    def __init__(self, articles: list, lang,str_intro):
+    def __init__(self, articles: list, lang,str_intro,output_name):
+
+        """create audio object from ISO 361-1 lang code"""
 
         self._articles = articles
         self._lang = lang
@@ -13,7 +16,10 @@ class Audio:
         self.str_article_skip = 'Details are at '
         self.str_new_article = "Now we are heading to the next news"
         self.str_not_found = "Sorry, no news or articles were found"
+
         self.str_intro = str_intro
+
+        self.OUTPUT_NAME = output_name
 
         # if lang is not english, need to translate these
         if lang != "en":
@@ -23,6 +29,13 @@ class Audio:
             self.str_new_article = self._translator.translate(self.str_new_article)
             self.str_not_found = self._translator.translate(self.str_not_found)
             self.str_intro = self._translator.translate(self.str_intro)
+
+    @classmethod
+    def from_country_code(cls,articles:list,country_code:str,intro:str,output_file_name:str):
+        """create Audio object from ISO 3661 country_code"""
+
+        language_code = helpers.get_ISO639_code_from_ISO_1366(country_code)
+        return cls(articles, language_code, intro, output_file_name)
 
     def _article_to_text(self, article: Article) -> str:
 
@@ -77,13 +90,13 @@ class Audio:
         return text
 
     def create_audio(self):
-        """convert given articles to audio"""
+        """convert given articles to audio. Call get_audio_path after this to get path"""
 
         tts = gTTS(text=self.str_not_found, lang=self._lang, tld="com")
 
         # if no article is found
         if len(self._articles) == 0:
-            tts.save("audio.mp3")
+            tts.save(self.OUTPUT_NAME)
             return
 
         text_articles = self.str_intro
@@ -99,4 +112,7 @@ class Audio:
                     text_articles += self.str_new_article + Audio.gtts_pause
 
         tts.text = text_articles
-        tts.save("audio.mp3")
+        tts.save(self.OUTPUT_NAME)
+
+
+
