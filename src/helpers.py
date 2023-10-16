@@ -9,7 +9,7 @@ def ISO_1366_countries():
 def get_country_name(country_code:str):
     return iso3166.countries[country_code].name
 def is_ALPHA2_ISO_3166_country_code(country_code:str):
-    return country_code in iso3166.countries_by_alpha2 and len(country_code) == 2
+    return country_code in iso3166.countries and len(country_code) == 2
 
 def get_ISO639_code_from_ISO_1366(country_code:str):
     """return ISO 639-1 code (language code) from country code """
