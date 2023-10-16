@@ -1,7 +1,6 @@
 from article import Article
 from gtts import gTTS
 from translate import Translator
-import os
 import helpers
 
 class Audio:
@@ -20,7 +19,7 @@ class Audio:
 
         self.str_intro = str_intro
 
-        self._outputname = output_name
+        self.OUTPUT_NAME = output_name
 
         # if lang is not english, need to translate these
         if lang != "en":
@@ -36,7 +35,6 @@ class Audio:
         """create Audio object from ISO 3661 country_code"""
 
         language_code = helpers.get_ISO639_code_from_ISO_1366(country_code)
-
         return cls(articles, language_code, intro, output_file_name)
 
     def _article_to_text(self, article: Article) -> str:
@@ -98,7 +96,7 @@ class Audio:
 
         # if no article is found
         if len(self._articles) == 0:
-            tts.save("audio.mp3")
+            tts.save(self.OUTPUT_NAME)
             return
 
         text_articles = self.str_intro
@@ -114,9 +112,7 @@ class Audio:
                     text_articles += self.str_new_article + Audio.gtts_pause
 
         tts.text = text_articles
-        tts.save(self._outputname)
+        tts.save(self.OUTPUT_NAME)
 
-    def get_audio_path(self) -> str:
-        """return path of created audio. Call after creating audio"""
-        return os.getcwd()+self._outputname
+
 
