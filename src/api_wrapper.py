@@ -48,7 +48,7 @@ class Api:
 
         # if country or category data is invalid
         # raise InvalidInputError
-        if not (helpers.is_ISO_3166_country_code(country_code) and category in Api.CATEGORIES):
+        if not (helpers.is_ALPHA2_ISO_3166_country_code(country_code) and category in Api.CATEGORIES):
             raise InvalidInputError("Category or country data is invalid.")
 
         url = f"https://newsapi.org/v2/top-headlines?country={country_code}&category={category}&apiKey={self._api_key}"
@@ -67,7 +67,7 @@ class Api:
 
         # if country or category data is invalid
         # raise InvalidInputError
-        if not helpers.is_ISO_3166_country_code(country_code):
+        if not helpers.is_ALPHA2_ISO_3166_country_code(country_code):
             raise InvalidInputError("Country data is invalid.")
 
         url = f"https://newsapi.org/v2/top-headlines?country={country_code}&apiKey={self._api_key}"

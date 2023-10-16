@@ -33,7 +33,7 @@ async def start_command(update: Update, context):
 async def getnews(update: Update, context):
     """handle the /getnews command"""
     info_message = "To get top headlines and breaking news in an audited format:\n" \
-                   "type this without '< >':\n <insert your country code according to ISO 3166-1>'"
+                   "type this without '< >':\n <insert your 2 letter country code according to ISO 3166-1>'"
 
     await update.message.reply_text(info_message)
 
@@ -50,7 +50,7 @@ async def getnews_category(update: Update, context):
                    "   - sports\n" \
                    "   - technology\n\n" \
                    "To get top headlines and breaking news in an audited format:\n" \
-                   "type this without '< >':\n <insert your country code according to ISO 3166-1>'<insert space> " \
+                   "type this without '< >':\n <insert your 2 letter country code according to ISO 3166-1>'<insert space> " \
                    "<insert one of the categories above>"
 
     await update.message.reply_text(info_message)
@@ -98,7 +98,7 @@ async def process_user_message(user_message: str, update: Update, context: Conte
         country_code = response_data[0]
 
         # if given country code is valid
-        if helpers.is_ISO_3166_country_code(country_code):
+        if helpers.is_ALPHA2_ISO_3166_country_code(country_code):
 
             audio_intro = f"latest news in {helpers.get_country_name(country_code)}"
             bot_response = f"Retrieving {audio_intro}. Loading..."
@@ -109,7 +109,7 @@ async def process_user_message(user_message: str, update: Update, context: Conte
         # given country code is not valid
         else:
 
-            bot_response = f"Country code {country_code} is not supported. Please check if it is in ISO 3166 format.\n" \
+            bot_response = f"Country code {country_code} is not supported. Please check if it is in ISO 3166 2 letter format.\n" \
                            f"If it is, please contact admin"
 
             await update.message.reply_text(bot_response)
@@ -124,7 +124,7 @@ async def process_user_message(user_message: str, update: Update, context: Conte
         category = response_data[1]
 
         # if given country code is valid
-        if helpers.is_ISO_3166_country_code(country_code):
+        if helpers.is_ALPHA2_ISO_3166_country_code(country_code):
 
             if category in api.CATEGORIES:
 
@@ -140,7 +140,7 @@ async def process_user_message(user_message: str, update: Update, context: Conte
                 await update.message.reply_text(bot_response)
 
         else:
-            bot_response = f"Country code {country_code} is not supported. Please check if it is in ISO 3166 format.\n" \
+            bot_response = f"Country code {country_code} is not supported. Please check if it is in ISO 3166 2 letter format.\n" \
                            f"If it is, please contact admin"
             await update.message.reply_text(bot_response)
 
