@@ -18,44 +18,62 @@ class Api:
     def __init__(self, api_key: str):
         self._api_key = api_key
 
-    @staticmethod
-    def _trim_article_content(content,author,source,title):
-        """Trim full article content close to specified upper bound
+
+    # old logic before realising that API does not return full content
+    """"@staticmethod
+    #def __trimming_logic(content,title,source,author):"""
+
+    """""Trim full article content close to specified upper bound
 
         Trims the article at stopping by the closest "." to the upperbound
         Raise RuntimeError if can't be trimmed
-        """
+        """"""
+
+        # if article does not contain any "."
+        #   message = f"Problem in trimming content \n "\
+        #   f"Article {title} written by {author} from {source} does not contain any '.'" \
+        #   f"Content {content}"
+    
+        #   raise RuntimeError(message)
+    
+        # get the approximate words
+    
+        if len(content) >= Api.CONTENT_LENGTH_UPPER_BOUND:
+    
+            for i in range(len(content)):
+                if i >= Api.CONTENT_LENGTH_UPPER_BOUND and content[i] == '.':
+                    break
+    
+        # this is not an expected case but still included it because not sure what could be the API's response
+        # if full article content is less than the determined upper bound length
+        # find nearest "." to the end
+        else:
+            for i in range(-1, -1 * len(content) - 1, -1):
+                if content[i] == '.':
+                    # convert i to positive index
+                    i = len(content) + i
+                    break
+    
+            # return content[:i+1]  # trimmed content
+    
+        return content[:i + 1]  # trimmed content"""
+
+
+    @staticmethod
+    def _trim_article_content(content):
+        """clean char data from api response, return trimmed article
+
+        if content is none return none"""
 
         if content:
+            for id, char in enumerate(content):
+                if char == '[':
+                    break
 
-            # if article does not contain any "."
-            if "." not in content:
-                message = f"Problem in trimming content \n "\
-                f"Article {title} written by {author} from {source} does not contain any '.'" \
+            return content[:id]
 
-                raise RuntimeError(message)
-
-            # get the approximate words
-            if len(content) >= Api.CONTENT_LENGTH_UPPER_BOUND:
-
-                for i in range(len(content)):
-                    if i >= Api.CONTENT_LENGTH_UPPER_BOUND and content[i] == '.':
-                        break
-
-            # this is not an expected case but still included it because not sure what could be the API's response
-            # if full article content is less than the determined upper bound length
-            # find nearest "." to the end
-            else:
-                for i in range(-1, -1 * len(content) - 1, -1):
-                    if content[i] == '.':
-                        # convert i to positive index
-                        i = len(content) + i
-                        break
-
-            return content[:i+1]  # trimmed content
-
-    def _get_parsed_response(self,res):
-        """return list of articles from parsing json data"""
+    def _get_cleaned_response(self, res):
+        """return list of articles from cleaning json data"""
 
         articles_data = res.json()
 
@@ -74,7 +92,7 @@ class Api:
             # short summary of content
             description = article_data["description"]
 
-            trimmed_content = Api._trim_article_content(article_data["content"],author,source,title)
+            trimmed_content = Api._trim_article_content(article_data["content"])
             article = Article(author,title,source,published_at,url,description,trimmed_content)
             articles.append(article)
 
@@ -99,7 +117,7 @@ class Api:
         if res.status_code != 200:
             raise RuntimeError(f"Error fetching the headlines for {country_code}")
 
-        return self._get_parsed_response(res)
+        return self._get_cleaned_response(res)
 
     @dispatch(str)
     def get_top_headlines(self, country_code: str) -> list:
@@ -118,4 +136,4 @@ class Api:
         if res.status_code != 200:
             raise RuntimeError(f"Error fetching the headlines  for {country_code}")
 
-        return self._get_parsed_response(res)
+        return self._get_cleaned_response(res)

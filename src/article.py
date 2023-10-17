@@ -11,7 +11,7 @@ class Article:
         self._description = description # summary of content
         self._content = content
 
-    def _get_content(self) -> str:
+    def __get_text(self) -> str:
         """Return description (short summary from API) if exits else return content
 
         If content also does not exist return none"""
