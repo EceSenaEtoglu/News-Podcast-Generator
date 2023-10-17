@@ -3,10 +3,13 @@ from gtts import gTTS
 from translate import Translator
 import helpers
 
-class Audio:
 
+class Audio:
+    # gTTS library adds stops for these chars
+    # use in between news
     gtts_pause = "\n\n\n\n ."
-    def __init__(self, articles: list, lang,str_intro,output_name):
+
+    def __init__(self, articles: list, lang, str_intro, output_name):
 
         """create audio object from ISO 361-1 lang code"""
 
@@ -23,7 +26,6 @@ class Audio:
 
         # if lang is not english, need to translate these
         if lang != "en":
-            # TODO use google translate
             self._translator = Translator(to_lang=lang)
             self.str_article_skip = self._translator.translate(self.str_article_skip)
             self.str_new_article = self._translator.translate(self.str_new_article)
@@ -31,35 +33,20 @@ class Audio:
             self.str_intro = self._translator.translate(self.str_intro)
 
     @classmethod
-    def from_country_code(cls,articles:list,country_code:str,intro:str,output_file_name:str):
+    def from_country_code(cls, articles: list, country_code: str, intro: str, output_file_name: str):
         """create Audio object from ISO 3661 country_code"""
 
         language_code = helpers.get_ISO639_code_from_ISO_1366(country_code)
         return cls(articles, language_code, intro, output_file_name)
 
     def _article_to_text(self, article: Article) -> str:
-
         """return text of article to audit, return empty text if both description and content is none"""
 
         text = ""
         title = article._title
 
-        # get title
-        for i in range(-1,-1*len(article._title)-1,-1):
-
-            # hard coded API response
-            # eliminate author from title blabla - X
-            # PROBLEM: blabla -X -Y cannot be eliminated
-            char = article._title[i]
-
-            if char == '-':
-                title = article._title[-1*len(article._title):i]
-                break
-
         # add title to text
-
         text += title + f"{Audio.gtts_pause}"
-
 
         if article._description is not None:
             text += article._description
@@ -70,27 +57,14 @@ class Audio:
         # response given by the API is problematic
         # nor content nor description is provided
         # for now just get the title
-        # TODO scrape from url
         else:
             pass
 
-
-        # hard coded API response
-        # if article.source.name is not Google News,
-        # the source is article.source.name (see https://newsapi.org/s/us-news-api)
-
-        if article._source is not None and article._source["name"] != "Google News":
-            source = article._source["name"]
-
-        # else author is the source
-        else:
-            source = article._author
-
-        text += "\n" + self.str_article_skip + source + f"{Audio.gtts_pause}" * 2
+        text += "\n" + self.str_article_skip + article._source_to_audit + f"{Audio.gtts_pause}" * 2
         return text
 
     def create_audio(self):
-        """convert given articles to audio. Call get_audio_path after this to get path"""
+        """create audio from provided articles"""
 
         tts = gTTS(text=self.str_not_found, lang=self._lang, tld="com")
 
@@ -113,6 +87,3 @@ class Audio:
 
         tts.text = text_articles
         tts.save(self.OUTPUT_NAME)
-
-
-

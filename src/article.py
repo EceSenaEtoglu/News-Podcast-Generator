@@ -1,12 +1,15 @@
 class Article:
 
-    def __init__(self, author:str,title:str,source:str,published_at:str,url:str,description:str,content:str):
+    def __init__(self, author:str,title:str,source:str,published_at:str,url:str,description:str,content:str,source_to_audit:str):
 
         self._author = author
         self._title = title
         self._source = source
         self._url = url
         self._published_at = published_at
+
+        # cleaned source to audit
+        self._source_to_audit = source_to_audit
 
         self._description = description # summary of content
         self._content = content

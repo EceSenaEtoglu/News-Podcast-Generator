@@ -3,21 +3,21 @@ from article import Article
 import requests
 import helpers
 
+
 class InvalidInputError(Exception):
     def __init__(self, message):
         self.message = message
         super().__init__(self.message)
 
+
 class Api:
+    # https://newsapi.org/
 
-    #https://newsapi.org/
-
-    CATEGORIES = ["business","entertainment","general","health","science","sports","technology"]
+    CATEGORIES = ["business", "entertainment", "general", "health", "science", "sports", "technology"]
     CONTENT_LENGTH_UPPER_BOUND = 30
 
     def __init__(self, api_key: str):
         self._api_key = api_key
-
 
     # old logic before realising that API does not return full content
     """"@staticmethod
@@ -58,9 +58,8 @@ class Api:
     
         return content[:i + 1]  # trimmed content"""
 
-
     @staticmethod
-    def _trim_article_content(content):
+    def _trim_article_content(content: str):
         """clean char data from api response, return trimmed article
 
         if content is none return none"""
@@ -72,8 +71,46 @@ class Api:
 
             return content[:id]
 
-    def _get_cleaned_response(self, res):
-        """return list of articles from cleaning json data"""
+    @staticmethod
+    def _get_cleaned_source(source: dict, author: str) -> str:
+
+        # if article source is none or Google News
+        # author is the source
+
+        # else
+        # the source is article.source.name
+        # (compare sources https://newsapi.org/s/us-news-api, https://newsapi.org/s/turkey-news-api)
+
+        if source is None or source["name"] == "Google News":
+            source = author
+
+        else:
+            source = source["name"]
+
+        return source
+
+    @staticmethod
+    def _get_cleaned_title(title: str) -> str:
+        """ Clean author from title
+        blabla - X (clean "- X")
+
+        PROBLEM: in blabla -X -Y, Y cannot be cleaned"""
+
+        # get title
+        for i in range(-1, -1 * len(title) - 1, -1):
+
+            # hard coded API response
+            # eliminate author from title blabla - X
+            # PROBLEM: blabla -X -Y cannot be eliminated
+            char = title[i]
+
+            if char == '-':
+                title = title[-1 * len(title):i]
+                break
+        return title
+    @staticmethod
+    def _get_cleaned_response(res):
+        """Return list of articles from cleaning json data"""
 
         articles_data = res.json()
 
@@ -82,18 +119,20 @@ class Api:
 
         # create list of article objects from article data
         for article_data in articles_data:
-
             author = article_data["author"]
-            title = article_data["title"]
+            title = Api._get_cleaned_title(article_data["title"])
+
             source = article_data["source"]
             url = article_data["url"]
             published_at = article_data["publishedAt"]
+
+            source_to_audit = Api._get_cleaned_source(source, author)
 
             # short summary of content
             description = article_data["description"]
 
             trimmed_content = Api._trim_article_content(article_data["content"])
-            article = Article(author,title,source,published_at,url,description,trimmed_content)
+            article = Article(author, title, source, published_at, url, description, trimmed_content, source_to_audit)
             articles.append(article)
 
         return articles
@@ -117,12 +156,12 @@ class Api:
         if res.status_code != 200:
             raise RuntimeError(f"Error fetching the headlines for {country_code}")
 
-        return self._get_cleaned_response(res)
+        return Api._get_cleaned_response(res)
 
     @dispatch(str)
     def get_top_headlines(self, country_code: str) -> list:
         """Return top headlines for a country from country's news sources
-        Increasing order of publish time. E.g most recent headline is at the end
+        Increasing order of publish time. E.g. most recent headline is at the end
         Raise InvalidInputError if inputs are invalid."""
 
         # if country or category data is invalid
@@ -136,4 +175,4 @@ class Api:
         if res.status_code != 200:
             raise RuntimeError(f"Error fetching the headlines  for {country_code}")
 
-        return self._get_cleaned_response(res)
+        return Api._get_cleaned_response(res)

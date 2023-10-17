@@ -1,8 +1,9 @@
-from api_wrapper import *
 from audio import *
 from config import *
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+
+from src.api_wrapper import Api
 
 ## GLOBALS
 START_MESSAGE = "I can get you the top headlines and breaking news for a country (in the country's official language) in an audited format.\n" \
@@ -23,6 +24,7 @@ START_MESSAGE = "I can get you the top headlines and breaking news for a country
 INVALID_RESPONSE_ERROR = "I'm not sure I understand your response. To see what I can do press /start"
 
 api = Api(NEWS_API_KEY)
+
 
 # Commands
 async def start_command(update: Update, context):
@@ -114,7 +116,6 @@ async def process_user_message(user_message: str, update: Update, context: Conte
 
             await update.message.reply_text(bot_response)
 
-
     # user possibly asked for news in a country in a specific category
 
     elif len(response_data) == 2:
@@ -178,8 +179,6 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_audio(audio=audio)
         except FileNotFoundError as e:
             print(e)
-
-
 
 
 # Debugger function for the developer

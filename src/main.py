@@ -6,7 +6,6 @@ from src.audio import Audio
 
 if __name__ == '__main__':
 
-
     news_api = Api(NEWS_API_KEY)
     intro_str = f"Latest news in US"
 
@@ -16,7 +15,7 @@ if __name__ == '__main__':
         print(e.message)
 
     else:
-        audio = Audio(articles[:10], "en", "intro_str")
+        audio = Audio(articles[:3], "en", intro_str,"audio.mp3")
         audio.create_audio()
 
 
