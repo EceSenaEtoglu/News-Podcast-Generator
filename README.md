@@ -19,7 +19,7 @@ What if you were in control everyday?
 2- Pick the country and category of the news and audit them in country's offical language!
 
 ## Usage
-1- Get [Inform Me](@The_InformMe_Bot) in Telegram.  
+1- Get [Inform Me](https://t.me/The_InformMe_Bot) in Telegram.  
 2- Start the bot.  
 3- Follow the simple instructions.
 
