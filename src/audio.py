@@ -24,7 +24,7 @@ class Audio:
         self.str_not_found = "Sorry, no news or articles were found"
         self.str_news_end = "These were the news"
         self.str_unkown_source = "Sorry, no source were found"
-        self.str_news_end = "We've come to the end of all our news, thank you for listening."
+        self.str_news_end = "We've come to the end, thank you for listening."
 
         self.str_intro = str_intro
 
