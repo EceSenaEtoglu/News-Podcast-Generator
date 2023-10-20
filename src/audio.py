@@ -5,25 +5,31 @@ from gtts import gTTS
 from translate import Translator
 import helpers
 
+
 class Audio:
     # gTTS library adds stops for these chars
-    # use in between news
-    gtts_pause = "\n\n\n\n."
+    # use in between news to add a break
+    gTTS_pause = "\n\n\n\n. "
+
+    # add to appropriate places to eliminate the chance of stop in between sentences
+    gTTS_break_token = ". "
 
     def __init__(self, articles: list, lang, str_intro, output_name):
+
+        print(len(articles))
 
         """create audio object from ISO 361-1 lang code"""
 
         self._articles = articles
         self._lang = lang
 
-        self.str_date_today = date.today().strftime('%B %d, %Y') # Format the date as a readable string
+        self.str_date_today = date.today().strftime('%B %d, %Y')  # Format the date as a readable string
 
         self.str_article_skip = 'Details are at '
-        self.str_new_article = "Now we are heading to the next news"
-        self.str_not_found = "Sorry, no news or articles were found"
-        self.str_news_end = "These were the news"
-        self.str_unkown_source = "Sorry, no source were found"
+        self.str_new_article = "Now we are heading to the next news."
+        self.str_not_found = "Sorry, no news or articles were found."
+        self.str_news_end = "These were the news."
+        self.str_unkown_source = "Sorry, no source were found."
         self.str_news_end = "We've come to the end, thank you for listening."
 
         self.str_intro = str_intro
@@ -55,7 +61,7 @@ class Audio:
         title = article._title
 
         # add title to text
-        text += title + f"{Audio.gtts_pause}"
+        text += title + f"{Audio.gTTS_pause}"
 
         if article._description is not None:
             text += article._description
@@ -72,7 +78,9 @@ class Audio:
         # set the source
         source = article._source_to_audit if article._source_to_audit else self.str_unkown_source
 
-        text += "\n" + self.str_article_skip + source + f"{Audio.gtts_pause}" * 2
+        # pause is to create stop in between news
+        # token is to eliminate the chance of stops in between sentences
+        text += Audio.gTTS_break_token + self.str_article_skip + Audio.gTTS_break_token + source + f"{Audio.gTTS_pause}" * 2
         return text
 
     def create_audio(self):
@@ -85,22 +93,21 @@ class Audio:
             tts.save(self.OUTPUT_NAME)
             return
 
-        text_articles = self.str_date_today + Audio.gtts_pause + self.str_intro
+        text_articles = self.str_date_today + Audio.gTTS_pause + self.str_intro
 
         for id, article in enumerate(self._articles):
             text_article = self._article_to_text(article)
 
             if len(text_article) != 0:
-                text_articles += Audio.gtts_pause + text_article
+                text_articles += Audio.gTTS_pause + text_article
 
                 # if upcoming article exists, add string_new_article text
                 if id != len(self._articles) - 1:
-                    text_articles += self.str_new_article + Audio.gtts_pause
-
+                    text_articles += self.str_new_article + Audio.gTTS_pause + Audio.gTTS_break_token
 
                 # add ending text
                 else:
-                    text_articles += Audio.gtts_pause + self.str_news_end
+                    text_articles += Audio.gTTS_pause + self.str_news_end
 
         tts.text = text_articles
         tts.save(self.OUTPUT_NAME)

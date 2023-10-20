@@ -199,7 +199,7 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     # Errors
-    app.add_error_handler(log_error)
+    #app.add_error_handler(log_error)
 
     # Polls the bot
     print("Polling")
