@@ -4,6 +4,7 @@ from src.api_wrapper import Api
 
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+import os
 
 # GLOBALS
 START_MESSAGE = "I can get you the top headlines and breaking news for a country (in the country's official language) in an audited format! \n" \
@@ -179,6 +180,10 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await update.message.reply_audio(audio=audio)
         except FileNotFoundError as e:
             print(e)
+
+        finally:
+            # delete generated audio
+            os.remove(audio_path)
 
 
 # Debugger function for the developer
