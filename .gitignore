@@ -159,4 +159,5 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 src/config.py
-src/audio.mp3
+# if for some reason .mp3 files are not deleted
+src/*.mp3
