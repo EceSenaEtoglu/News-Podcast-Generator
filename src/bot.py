@@ -1,12 +1,12 @@
 from audio import *
 from config import *
+from src.api_wrapper import Api
+
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
-from src.api_wrapper import Api
-
-## GLOBALS
-START_MESSAGE = "I can get you the top headlines and breaking news for a country (in the country's official language) in an audited format.\n" \
+# GLOBALS
+START_MESSAGE = "I can get you the top headlines and breaking news for a country (in the country's official language) in an audited format! \n" \
                 "\nHere is what I can do:\n\n" \
                 "1- Get news for a country from the country's sources.\n" \
                 "2- Get news for a country from the country's sources about a specific category. Here are possible " \
@@ -21,7 +21,7 @@ START_MESSAGE = "I can get you the top headlines and breaking news for a country
                 "For option 1, type /getnews\n" \
                 "For option 2, type /getnews_category\n"
 
-INVALID_RESPONSE_ERROR = "I'm not sure I understand your response. To see what I can do press /start"
+INVALID_RESPONSE_ERROR = "I'm not sure I understand your response. To see what I can do type /start"
 
 api = Api(NEWS_API_KEY)
 
@@ -35,7 +35,7 @@ async def start_command(update: Update, context):
 async def getnews(update: Update, context):
     """handle the /getnews command"""
     info_message = "To get top headlines and breaking news in an audited format:\n" \
-                   "type this without '< >':\n <insert your 2 letter country code according to ISO 3166-1>'"
+                   "type (without '< >'):\n <insert your 2 letter country code according to ISO 3166-1>'"
 
     await update.message.reply_text(info_message)
 
@@ -52,7 +52,7 @@ async def getnews_category(update: Update, context):
                    "   - sports\n" \
                    "   - technology\n\n" \
                    "To get top headlines and breaking news in an audited format:\n" \
-                   "type this without '< >':\n <insert your 2 letter country code according to ISO 3166-1>'<insert space> " \
+                   "type (without '< >'):\n <insert your 2 letter country code according to ISO 3166-1>'<insert space> " \
                    "<insert one of the categories above>"
 
     await update.message.reply_text(info_message)
@@ -100,7 +100,7 @@ async def process_user_message(user_message: str, update: Update, context: Conte
         country_code = response_data[0]
 
         # if given country code is valid
-        if helpers.is_ALPHA2_ISO_3166_country_code(country_code):
+        if helpers.is_a_supported_country_code(country_code):
 
             audio_intro = f"latest news in {helpers.get_country_name(country_code)}"
             bot_response = f"Retrieving {audio_intro}. Loading..."
@@ -111,8 +111,8 @@ async def process_user_message(user_message: str, update: Update, context: Conte
         # given country code is not valid
         else:
 
-            bot_response = f"Country code {country_code} is not supported. Please check if it is in ISO 3166 2 letter format.\n" \
-                           f"If it is, please contact admin"
+            bot_response = f"Country code '{country_code}' is not supported.\nPlease check if it is in 2 letter ISO 3166-1 format.If it is, please contact admin.\n" \
+                           f"Did you want something else? Type /start to view my capabilities."
 
             await update.message.reply_text(bot_response)
 
@@ -125,7 +125,7 @@ async def process_user_message(user_message: str, update: Update, context: Conte
         category = response_data[1]
 
         # if given country code is valid
-        if helpers.is_ALPHA2_ISO_3166_country_code(country_code):
+        if helpers.is_a_supported_country_code(country_code):
 
             if category in api.CATEGORIES:
 
@@ -137,18 +137,19 @@ async def process_user_message(user_message: str, update: Update, context: Conte
 
             # category is not valid
             else:
-                bot_response = f"Category {category} is not supported. To see the supported categories type /getnews_category"
+                bot_response = f"Category '{category}' is not supported.\nTo see the supported categories type /getnews_category"
                 await update.message.reply_text(bot_response)
 
         else:
-            bot_response = f"Country code {country_code} is not supported. Please check if it is in ISO 3166 2 letter format.\n" \
-                           f"If it is, please contact admin"
+            bot_response = f"Country code '{country_code}' is not supported.\nPlease check if it is in 2 letter ISO 3166-1 format." \
+                           f"If it is, please contact admin.\nDid you want something else? Type /start to view my capabilities."
             await update.message.reply_text(bot_response)
 
     # unidentified response structure
     else:
         bot_response = INVALID_RESPONSE_ERROR
         await update.message.reply_text(bot_response)
+
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle user message

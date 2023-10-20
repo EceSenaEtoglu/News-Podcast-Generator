@@ -8,7 +8,7 @@ import helpers
 class Audio:
     # gTTS library adds stops for these chars
     # use in between news
-    gtts_pause = "\n\n\n\n ."
+    gtts_pause = "\n\n\n\n."
 
     def __init__(self, articles: list, lang, str_intro, output_name):
 

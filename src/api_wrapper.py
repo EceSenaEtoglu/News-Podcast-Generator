@@ -19,7 +19,7 @@ class Api:
     def __init__(self, api_key: str):
         self._api_key = api_key
 
-    # old logic to trim the content such that returned content ends at a full sentence
+    # old logic to trim the full article content such that returned content ends at a full sentence
     # and is of closest length to UPPER_BOUND
 
     # API does not return full content so can't be used via this API
@@ -97,7 +97,7 @@ class Api:
         """ Clean author from title
         blabla - X (clean "- X")
 
-        PROBLEM: in blabla -X -Y, -Y cannot be cleaned"""
+        PROBLEM: blabla -X -Y, -Y cannot be cleaned"""
 
         # get title
         for i in range(-1, -1 * len(title) - 1, -1):
@@ -138,6 +138,8 @@ class Api:
             article = Article(author, title, source, published_at, url, description, trimmed_content, source_to_audit)
             articles.append(article)
 
+        articles_data.clear()
+
         return articles
 
     @dispatch(str, str)
@@ -150,7 +152,7 @@ class Api:
 
         # if country or category data is invalid
         # raise InvalidInputError
-        if not (helpers.is_ALPHA2_ISO_3166_country_code(country_code) and category in Api.CATEGORIES):
+        if not (helpers.is_a_supported_country_code(country_code) and category in Api.CATEGORIES):
             raise InvalidInputError("Category or country data is invalid.")
 
         url = f"https://newsapi.org/v2/top-headlines?country={country_code}&category={category}&apiKey={self._api_key}"
@@ -158,6 +160,7 @@ class Api:
 
         if res.status_code != 200:
             raise RuntimeError(f"Error fetching the headlines for {country_code} in {category}")
+
 
         return Api._get_cleaned_response(res)
 
@@ -169,7 +172,7 @@ class Api:
 
         # if country or category data is invalid
         # raise InvalidInputError
-        if not helpers.is_ALPHA2_ISO_3166_country_code(country_code):
+        if not helpers.is_a_supported_country_code(country_code):
             raise InvalidInputError("Country data is invalid.")
 
         url = f"https://newsapi.org/v2/top-headlines?country={country_code}&apiKey={self._api_key}"

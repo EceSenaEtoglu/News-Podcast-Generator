@@ -11,7 +11,7 @@ def get_country_name(country_code: str):
     return iso3166.countries[country_code].name
 
 
-def is_ALPHA2_ISO_3166_country_code(country_code: str):
+def is_a_supported_country_code(country_code: str):
     return country_code in iso3166.countries and len(country_code) == 2
 
 
