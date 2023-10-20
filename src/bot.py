@@ -1,6 +1,6 @@
 from audio import *
 from config import *
-from src.api_wrapper import Api
+from api_wrapper import Api
 
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
