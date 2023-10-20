@@ -1,8 +1,9 @@
+from datetime import date
+
 from article import Article
 from gtts import gTTS
 from translate import Translator
 import helpers
-
 
 class Audio:
     # gTTS library adds stops for these chars
@@ -16,9 +17,14 @@ class Audio:
         self._articles = articles
         self._lang = lang
 
+        self.str_date_today = date.today().strftime('%B %d, %Y') # Format the date as a readable string
+
         self.str_article_skip = 'Details are at '
         self.str_new_article = "Now we are heading to the next news"
         self.str_not_found = "Sorry, no news or articles were found"
+        self.str_news_end = "These were the news"
+        self.str_unkown_source = "Sorry, no source were found"
+        self.str_news_end = "We've come to the end of all our news, thank you for listening."
 
         self.str_intro = str_intro
 
@@ -31,6 +37,9 @@ class Audio:
             self.str_new_article = self._translator.translate(self.str_new_article)
             self.str_not_found = self._translator.translate(self.str_not_found)
             self.str_intro = self._translator.translate(self.str_intro)
+            self.str_date_today = self._translator.translate(self.str_date_today)
+            self.str_unkown_source = self._translator.translate(self.str_unkown_source)
+            self.str_news_end = self._translator.translate(self.str_news_end)
 
     @classmethod
     def from_country_code(cls, articles: list, country_code: str, intro: str, output_file_name: str):
@@ -60,7 +69,10 @@ class Audio:
         else:
             pass
 
-        text += "\n" + self.str_article_skip + article._source_to_audit + f"{Audio.gtts_pause}" * 2
+        # set the source
+        source = article._source_to_audit if article._source_to_audit else self.str_unkown_source
+
+        text += "\n" + self.str_article_skip + source + f"{Audio.gtts_pause}" * 2
         return text
 
     def create_audio(self):
@@ -73,7 +85,7 @@ class Audio:
             tts.save(self.OUTPUT_NAME)
             return
 
-        text_articles = self.str_intro
+        text_articles = self.str_date_today + Audio.gtts_pause + self.str_intro
 
         for id, article in enumerate(self._articles):
             text_article = self._article_to_text(article)
@@ -84,6 +96,11 @@ class Audio:
                 # if upcoming article exists, add string_new_article text
                 if id != len(self._articles) - 1:
                     text_articles += self.str_new_article + Audio.gtts_pause
+
+
+                # add ending text
+                else:
+                    text_articles += Audio.gtts_pause + self.str_news_end
 
         tts.text = text_articles
         tts.save(self.OUTPUT_NAME)
