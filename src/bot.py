@@ -35,7 +35,7 @@ async def start_command(update: Update, context):
 async def getnews(update: Update, context):
     """handle the /getnews command"""
     info_message = "To get top headlines and breaking news in an audited format:\n" \
-                   "type (without '< >'):\n <insert your 2 letter country code according to ISO 3166-1>'"
+                   "type (without '< >'):\n <insert a 2 letter country code in ISO 3166-1 (us,de,tr...)>'"
 
     await update.message.reply_text(info_message)
 
@@ -52,7 +52,7 @@ async def getnews_category(update: Update, context):
                    "   - sports\n" \
                    "   - technology\n\n" \
                    "To get top headlines and breaking news in an audited format:\n" \
-                   "type (without '< >'):\n <insert your 2 letter country code according to ISO 3166-1>'<insert space> " \
+                   "type (without '< >'):\n <insert a 2 letter country code in ISO 3166-1 (us,de,tr...)><insert space> " \
                    "<insert one of the categories above>"
 
     await update.message.reply_text(info_message)
@@ -199,7 +199,7 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT, handle_message))
 
     # Errors
-    #app.add_error_handler(log_error)
+    app.add_error_handler(log_error)
 
     # Polls the bot
     print("Polling")

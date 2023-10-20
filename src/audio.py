@@ -16,8 +16,6 @@ class Audio:
 
     def __init__(self, articles: list, lang, str_intro, output_name):
 
-        print(len(articles))
-
         """create audio object from ISO 361-1 lang code"""
 
         self._articles = articles
