@@ -150,7 +150,6 @@ async def process_user_message(user_message: str, update: Update, context: Conte
         bot_response = INVALID_RESPONSE_ERROR
         await update.message.reply_text(bot_response)
 
-
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle user message
 
@@ -186,7 +185,7 @@ async def log_error(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print(f"Update {update} caused error {context.error}")
 
 
-if __name__ == "__main__":
+def main():
     print("Starting bot")
     app = Application.builder().token(TELEGRAM_BOT_API_KEY).build()
 
@@ -205,3 +204,7 @@ if __name__ == "__main__":
     print("Polling")
     # Check for updates every poll_interval
     app.run_polling(poll_interval=POLL_INTERVAL_SECONDS)
+
+
+if __name__ == "__main__":
+    main()
