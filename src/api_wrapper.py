@@ -19,7 +19,10 @@ class Api:
     def __init__(self, api_key: str):
         self._api_key = api_key
 
-    # old logic before realising that API does not return full content
+    # old logic to trim the content such that returned content ends at a full sentence
+    # and is of closest length to UPPER_BOUND
+
+    # API does not return full content so can't be used via this API
     """"@staticmethod
     #def __trimming_logic(content,title,source,author):"""
 
@@ -94,7 +97,7 @@ class Api:
         """ Clean author from title
         blabla - X (clean "- X")
 
-        PROBLEM: in blabla -X -Y, Y cannot be cleaned"""
+        PROBLEM: in blabla -X -Y, -Y cannot be cleaned"""
 
         # get title
         for i in range(-1, -1 * len(title) - 1, -1):
@@ -154,7 +157,7 @@ class Api:
         res = requests.get(url)
 
         if res.status_code != 200:
-            raise RuntimeError(f"Error fetching the headlines for {country_code}")
+            raise RuntimeError(f"Error fetching the headlines for {country_code} in {category}")
 
         return Api._get_cleaned_response(res)
 
