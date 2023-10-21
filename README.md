@@ -10,9 +10,10 @@ Tv? Too long and those advertisements are painful to watch.
 
 
 
-What if you were in control everyday?
+What if you were in control everyday?  
+Inform Me is here for you with no cost.
 
-** 🎉Pick the country and category of the news and audit the top headlines and breaking news! 🎉**
+** 🎉Pick the country and category of the news and audit the top headlines and breaking news for free!  🎉**
 
 ## Features
 1- Pick the country of the news and audit them in country's official language!  
