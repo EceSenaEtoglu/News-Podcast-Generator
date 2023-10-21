@@ -112,7 +112,7 @@ async def process_user_message(user_message: str, update: Update, context: Conte
         # given country code is not valid
         else:
 
-            bot_response = f"Country code '{country_code}' is not supported.\nPlease check if it is in 2 letter ISO 3166-1 format. If so,{country_code} is not supported.\n" \
+            bot_response = f"Country code '{country_code}' is not supported.\nPlease check if it is in 2 letter ISO 3166-1 format. If so, {country_code} is not supported.\n" \
                            f"Did you want something else? Type /start to view my capabilities."
 
             await update.message.reply_text(bot_response)
@@ -143,7 +143,7 @@ async def process_user_message(user_message: str, update: Update, context: Conte
 
         else:
             bot_response = f"Country code '{country_code}' is not supported.\nPlease check if it is in 2 letter ISO 3166-1 format." \
-                           f"If so,{country_code} is not supported.\nDid you want something else? Type /start to view my capabilities."
+                           f"If so, {country_code} is not supported.\nDid you want something else? Type /start to view my capabilities."
             await update.message.reply_text(bot_response)
 
     # unidentified response structure
