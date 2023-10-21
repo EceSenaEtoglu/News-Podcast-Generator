@@ -1,4 +1,4 @@
-![logo](https://github.com/EceSenaEtoglu/InformMe/assets/97747826/5db956df-4d54-4657-9cd6-8bd40e3fc1a6)
+![logo](assets/logo.png)
 
 
 # INFORM ME
