@@ -12,7 +12,7 @@ def get_country_name(country_code: str):
 
 
 def is_a_supported_country_code(country_code: str):
-    return country_code in iso3166.countries and len(country_code) == 2
+    return country_code in country_to_lang and len(country_code) == 2
 
 
 def get_ISO639_code_from_ISO_1366(country_code: str):
