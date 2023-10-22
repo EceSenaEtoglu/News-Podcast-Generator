@@ -1,4 +1,6 @@
-![logo](assets/logo.png)
+<p align="center">
+  <img src="assets/logo_circle.png" width="300">
+</p>
 
 
 # INFORM ME
