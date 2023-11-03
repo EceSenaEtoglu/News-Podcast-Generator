@@ -38,5 +38,3 @@ Inform Me is here for you with no cost.
 ## Contribution
 If you face any issue feel free to open issues.  
 Pull requests are welcome!  
-
-I won't be developing this project for a brief period but I will get back to you as soon as I can.
